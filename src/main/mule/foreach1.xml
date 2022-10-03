@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="38f99144-7fda-40e1-a14e-48aa1fe52310" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="1a3b2463-7646-490f-94a7-a3cab5841ad5" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config2" doc:name="HTTP Listener config" doc:id="18679ff2-4a9f-4157-b4ba-0b74385e55d0" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="foreach1Flow1" doc:id="c1773843-f607-4347-9c6c-2e3f206748e8" >
+		<http:listener doc:name="Listener" doc:id="fa31b5dc-0dc5-40a6-9dc3-1ac1b0c97c3e" config-ref="HTTP_Listener_config" path="/foreach1"/>
+		<set-payload value="#[[1,2,3,4,5]]" doc:name="[1,2,3,4,5]" doc:id="ef8fcf26-0bc1-4f5f-acdf-5114ac0c99da" />
+		<set-variable value="#[[]]" doc:name="mypayload" doc:id="be639d94-ef76-4694-abc1-0bb9213d64b6" variableName="mypayload"/>
+		<foreach doc:name="For Each" doc:id="838b771b-2543-4ca7-a39f-38c0e87a1049" >
+			<set-payload value="#[payload * 10]" doc:name="mypayload" doc:id="d57f03c1-9b24-4c38-8a2c-b3a190ce3221" />
+			<logger level="INFO" doc:name="Logger" doc:id="ac468a12-a45f-4e9d-bc37-c0c90fd9da1e" message="#[payload]"/>
+			<set-variable value="#[vars.mypayload + payload]" doc:name="mypayload" doc:id="b0f88c18-1057-410f-91fb-7280f3550d5d" variableName="mypayload"/>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="8402262c-5c31-4a03-a3a6-08ed8fb29970" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.mypayload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="foreach1Flow" doc:id="9b8478d6-3dc5-45a0-ad04-149f6c432251" >
+		<http:listener doc:name="Listener" doc:id="afa0c86c-97f2-4097-a1a5-96aff6fb75fe" config-ref="HTTP_Listener_config" path="/foreach2"/>
+		<set-payload value="#[[1,2,3,4,5]]" doc:name="[1,2,3,4,5]" doc:id="298e33c7-2ecc-4298-a74b-e75bea9452e2" />
+		<foreach doc:name="For Each" doc:id="bc384b3b-e3c8-47bf-91ea-68a333f4df26" >
+			<set-payload value="#[payload * 10]" doc:name="Set Payload" doc:id="18b97571-1b30-447a-ab41-36d061734637" />
+			<logger level="INFO" doc:name="Logger" doc:id="2c726fb2-03d4-4a78-b221-4f69c09ba640" message="#[payload]"/>
+			<set-variable value='#[payload]' doc:name="mypayload" doc:id="82b6490b-64c8-4920-8548-f47033d79836" variableName="mypayload"/>
+		</foreach>
+		<ee:transform doc:name="Transform Message" doc:id="e4e44fd2-93b2-47dd-9c69-f8c17f274214" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	payloadvalue : payload,
+	varvalue : vars.mypayload
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
